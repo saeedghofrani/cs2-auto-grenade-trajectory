@@ -1,88 +1,58 @@
-# cs2-auto-grenade-trajectory
-auto calculate the trajectory of grenade from starting point to the pinpoint location
+# CS2 Grenade Trajectory Study
 
+An archived design study for an offline grenade-trajectory simulator inspired by Counter-Strike 2 physics.
 
-🧠 Concept Overview
-CS2 grenade throw planner/simulator that:
+## Status
 
-Hooks into CS2 via modding or external tools.
+This repository currently contains **concept documentation only**. It has no simulator, map parser, overlay, game integration, executable, test suite, or validated physics model. It should not be treated as a completed project or production claim.
 
-Lets you place a start point and an end point in the game world.
+## Intended safe scope
 
-Simulates the real grenade physics (arc, gravity, air resistance, bounces).
+A future implementation would be a standalone training and visualization tool using user-supplied parameters or legally reusable map geometry. It would not read game memory, inject code, automate competitive play, or bypass anti-cheat controls.
 
-Renders a visual curved path from start to target—like a training assist tool.
+## Proposed model
 
-🔧 What We Likely Need
-1. Access to CS2 Map Data
-You need the actual 3D map geometry (or at least nav mesh) to:
+The simulator would accept:
 
-Place start/target points.
+- a start position
+- a target position
+- throw strength and direction
+- gravity and drag coefficients
+- simplified collision surfaces
+- bounce restitution and friction
 
-Detect when grenades would hit walls or the ground.
+At each time step, it would update position and velocity, test the segment against scene geometry, apply a bounce response when necessary, and retain the sampled path for visualization.
 
-Options:
+```text
+velocity = velocity + gravity * dt
+velocity = velocity * drag
+position = position + velocity * dt
+```
 
-Extract map data from CS2 files (.bsp) using something like BSPSrc.
+## Possible milestones
 
-Use existing tools like Mapbase or GCFScape to parse map layouts.
+1. **Flat-plane prototype**
+   - simulate a ballistic arc with configurable gravity and drag
+   - solve for candidate angles and throw strength
+   - visualize the path in a standalone window
+2. **Collision model**
+   - add simple planes and meshes
+   - apply bounce and rolling behavior
+   - compare deterministic fixtures in automated tests
+3. **Offline map research**
+   - evaluate legally reusable geometry sources and formats
+   - document coordinate conversion and surface assumptions
+   - keep the simulator independent from a running game process
+4. **Calibration**
+   - compare recorded training examples against the model
+   - publish error bounds and known deviations
 
-OR: Start small by recreating a simplified map layout (e.g., Dust2 A-site area) in 3D just for testing.
+## Evidence required before calling it complete
 
-2. Grenade Physics Model
-CS2 uses Source 2 physics, so you’ll want to replicate these grenade behaviors:
+- authored source code and a reproducible build
+- automated tests for trajectory integration and collision response
+- documented geometry and asset licenses
+- recorded calibration inputs and error measurements
+- screenshots or a video of the standalone simulator
 
-Initial throw speed varies (left-click, right-click, both).
-
-Gravity and drag affect arc.
-
-Grenades bounce off surfaces and roll.
-
-Smokes detonate on timer (or under certain rules, e.g., bounce count).
-
-model:
-
-position += velocity * dt
-velocity += gravity * dt
-velocity *= drag (air resistance)
-
-And check for collisions with surfaces to apply bounces.
-
-3. Trajectory Simulation Engine
-
-Takes a starting position and initial velocity (angle, power).
-
-Runs a physics loop to simulate movement over time.
-
-Detects when it hits walls or ground and adjusts trajectory accordingly.
-
-Stores all the points in the path so you can render a curve.
-
-4. In-Game Visualization
-Options:
-
-Build a CS2 mod/overlay using CSGO cheats-style framework (e.g., ImGui + OpenGL DirectX overlay).
-
-Use OpenCV or DirectX overlay to draw paths on the screen in real-time.
-
-🗺️ Project Phases
-✅ Phase 1: Simple External Tool
-small app to simulate throws on a flat plane.
-
-Allow manual placement of start/target.
-
-Simulate trajectory based on initial velocity/gravity/drag.
-
-Visualize the curve.
-
-🔜 Phase 2: Real Map Integration
-Load map geometry from a .bsp file.
-
-Handle collisions/bounces properly.
-
-Add different throw types.
-
-🧪 Phase 3: Hook into CS2
-Add overlay or mod to place start point in real match.
-
- suggest throw angles and crosshair positions.
+Until those artifacts exist, this repository remains an experiment brief and is excluded from featured portfolio projects.
